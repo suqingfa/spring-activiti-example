@@ -36,7 +36,7 @@ public class ActivitiConfig {
 
         configuration.setDataSource(dataSource);
         configuration.setTransactionManager(transactionManager);
-        configuration.setDatabaseSchemaUpdate("true");
+        configuration.setDatabaseSchemaUpdate("create-drop");
 
         configuration.setDeploymentResources(context.getResources("classpath*:processes/**"));
 

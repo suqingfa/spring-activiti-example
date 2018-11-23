@@ -14,7 +14,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 测试任务流程
@@ -25,6 +27,8 @@ import java.util.List;
 @Slf4j
 @Component
 public class Runner {
+
+    private String key = "myProcess_1";
 
     @Autowired
     private RuntimeService runtimeService;
@@ -37,11 +41,12 @@ public class Runner {
     @Order(1)
     public CommandLineRunner start() {
         return args -> {
-            String key = "myProcess_1";
-            ProcessInstance instance = runtimeService.startProcessInstanceByKey(key);
 
-            // 设置流程变量
-            runtimeService.setVariable(instance.getId(), "person", "m");
+            Map<String, Object> map = new HashMap<>(2);
+            map.put("person", "m");
+            map.put("redirect", false);
+
+            ProcessInstance instance = runtimeService.startProcessInstanceByKey(key, map);
 
             log.error("id = {}, name = {}", instance.getId(), instance.getName());
         };
@@ -58,12 +63,8 @@ public class Runner {
             List<Task> list = taskQuery.taskAssignee(assignee).list();
 
             for (Task task : list) {
-
-                // 获取流程变量
-                log.error("person = {}",
-                        taskService.getVariable(task.getId(), "person"));
-
-                log.error("assignee = {}, id = {}, name = {}",
+                log.error("person = {}, assignee = {}, id = {}, name = {}",
+                        taskService.getVariable(task.getId(), "person"),
                         task.getAssignee(),
                         task.getId(),
                         task.getName());
@@ -97,7 +98,7 @@ public class Runner {
             List<HistoricProcessInstance> list = historyService.createHistoricProcessInstanceQuery().list();
 
             for (HistoricProcessInstance instance : list) {
-                log.error("id = {}, process id = {}, startTime = {}, endTime = {}",
+                log.info("id = {}, process id = {}, startTime = {}, endTime = {}",
                         instance.getId(),
                         instance.getProcessDefinitionId(),
                         instance.getStartTime(),
