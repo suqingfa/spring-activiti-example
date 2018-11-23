@@ -40,6 +40,9 @@ public class Runner {
             String key = "myProcess_1";
             ProcessInstance instance = runtimeService.startProcessInstanceByKey(key);
 
+            // 设置流程变量
+            runtimeService.setVariable(instance.getId(), "person", "m");
+
             log.error("id = {}, name = {}", instance.getId(), instance.getName());
         };
     }
@@ -55,7 +58,16 @@ public class Runner {
             List<Task> list = taskQuery.taskAssignee(assignee).list();
 
             for (Task task : list) {
-                log.error("assignee = {}, id = {}, name = {}", task.getAssignee(), task.getId(), task.getName());
+
+                // 获取流程变量
+                log.error("person = {}",
+                        taskService.getVariable(task.getId(), "person"));
+
+                log.error("assignee = {}, id = {}, name = {}",
+                        task.getAssignee(),
+                        task.getId(),
+                        task.getName());
+
                 taskService.complete(task.getId());
             }
         };
